@@ -15,14 +15,14 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/rameshkumarvermagithub/python-calculator.git'
+                git branch: 'master', url: 'https://github.com/rameshkumarvermagithub/hello-world.git'
             }
         }
         stage("Sonarqube Analysis "){
             steps{
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=python-calculator \
-                    -Dsonar.projectKey=python-calculator'''
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=hello-world \
+                    -Dsonar.projectKey=hello-world'''
                 }
             }
         }
@@ -53,16 +53,16 @@ pipeline{
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh "docker build -t python-calculator ."
-                       sh "docker tag python-calculator rameshkumarverma/python-calculator:latest"
-                       sh "docker push rameshkumarverma/python-calculator:latest"
+                       sh "docker build -t hello-world ."
+                       sh "docker tag hello-world rameshkumarverma/hello-world:latest"
+                       sh "docker push rameshkumarverma/hello-world:latest"
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image rameshkumarverma/python-calculator:latest > trivyimage.txt"
+                sh "trivy image rameshkumarverma/hello-world:latest > trivyimage.txt"
             }
         }
         // stage("deploy_docker"){
@@ -78,8 +78,8 @@ pipeline{
                     // dir('K8S') {
                         withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
                             // Apply deployment and service YAML files
-                            sh 'kubectl apply -f deployment.yml'
-                            sh 'kubectl apply -f service.yml'
+                            sh 'kubectl apply -f regapp-deploy.yml'
+                            sh 'kubectl apply -f regapp-service.yml'
 
                             // Get the external IP or hostname of the service
                             // def externalIP = sh(script: 'kubectl get svc amazon-service -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"', returnStdout: true).trim()
